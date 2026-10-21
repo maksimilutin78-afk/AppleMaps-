@@ -29,13 +29,7 @@ jobs:
       - name: Prepare web files
         run: |
           mkdir -p www
-          cp *.html www/ 2>/dev/null || true
-          cp *.css www/ 2>/dev/null || true
-          cp *.js www/ 2>/dev/null || true
-          cp *.png www/ 2>/dev/null || true
-          cp *.jpg www/ 2>/dev/null || true
-          cp *.svg www/ 2>/dev/null || true
-          cp *.webmanifest www/ 2>/dev/null || true
+          cp -R *.html *.css *.js *.png *.jpg *.jpeg *.svg *.webmanifest www/ 2>/dev/null || true
           test -f www/index.html || (echo "index.html not found" && exit 1)
           npm init -y
           npm install @capacitor/core@6 @capacitor/android@6
@@ -43,6 +37,11 @@ jobs:
           npx cap init "Apple Maps" "com.maksimilutin.applemaps" --web-dir www
           npx cap add android
           npx cap sync android
+
+      - name: Add GPS permissions
+        run: |
+          FILE=android/app/src/main/AndroidManifest.xml
+          sed -i '/<application/i\    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />' "$FILE"
 
       - name: Build APK
         run: |
